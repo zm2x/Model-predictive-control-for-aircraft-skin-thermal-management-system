@@ -1,0 +1,40 @@
+col1=[0 0.4470 0.7410];
+col2=[0.6350 0.0780 0.1840];
+Warm_time = 3000;
+Ts = 2.0;
+Ref_y = r_ts_raw.Data(Warm_time/Ts+1:end,end-1:end);
+Y0 = repmat(y0(:,end-1:end),size(Ref_y,1),1);
+Ref_Y = Ref_y + Y0;
+Y_control = out.logsout{1}.Values.Data;
+Y_control =Y_control(Warm_time/Ts+1:end,end-1:end)+Y0;
+t = r_ts_raw.Time(Warm_time/Ts+1:end);
+figure;
+plot(t,Ref_Y(:,1),"Color",col1,"LineStyle","-.","LineWidth",2.0);
+hold on;
+plot(t,Y_control(:,1),"Color",col2,"LineWidth",2.0);
+legend('Set Point','ESKF',fontsize =14);
+figure;
+plot(t,Ref_Y(:,2),"Color",col1,"LineStyle","-.","LineWidth",2.0);
+hold on;
+plot(t,Y_control(:,2),"Color",col2,"LineWidth",2.0);
+legend('Set point','ESKF',fontsize =14);
+U_control = out.logsout{3}.Values.Data;
+U_control = U_control(Warm_time/Ts+1:end,:);
+Output_Y = [t,Ref_Y,Y_control];
+Output_U = [t,U_control];
+fuel_power = out.Fuel_power.Data(Warm_time/Ts+1:end);
+Energy_consump = out.W_consumption.Data(Warm_time/Ts+1:end);
+T_s = out.Ts_D.Data;
+T_f = out.Tf_D.Data;
+Out_Ts = [t(t>6500 & t<=8000),T_s(t>6500 & t<=8000,:)];
+Out_Tf = [t(t>6500 & t<=8000),T_f(t>6500 & t<=8000,:)];
+writematrix(Output_Y,'./Data/Final_Y_MPC.txt');
+writematrix(fuel_power,'./Data/Final_Fuel_P_MPC.txt');
+writematrix(Energy_consump,'./Data/Final_Energy_cons_MPC.txt');
+writematrix(Out_Ts,'./Data/Final_Ts_MPC.txt');
+writematrix(Out_Tf,'./Data/Final_Tf_MPC.txt');
+% writematrix(Output_Y,'./Data/Dis_Rejection_Y_MPC.txt');
+% writematrix(Output_U,'./Data/Dis_Rejection_U_MPC.txt');
+
+
+
